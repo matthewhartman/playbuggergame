@@ -1,0 +1,100 @@
+/* Animations */
+@keyframes drop {
+  0% { opacity: 1; }
+}
+/* Fonts */
+@font-face {
+  font-display: fallback;
+  font-family: 'Bungee';
+  font-style: normal;
+  font-weight: 400;
+  src: url('bungee.woff') format('woff');
+}
+*, :after, :before {
+  box-sizing:border-box;
+  user-select: none;
+}
+html, body, .game {
+  height: 100%;
+}
+html {
+  -webkit-text-size-adjust: 100%;
+}
+.game {
+  display: flex;
+}
+body {
+  margin: 0;
+  font-family: 'Bungee', sans-serif;
+  font-size: 14px;
+  line-height: 22px;
+  color: #303342;
+  background: #fff;
+  overscroll-behavior: none;
+}
+.sr {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+}
+.logo {
+  font-family: "Bungee";
+  font-size: 56px;
+  line-height: normal;
+  color: #f6daa3;
+  margin: 0 0 2rem 0;
+  letter-spacing: 0.16em;
+  -webkit-text-stroke: 3px #303342;
+  text-shadow: 4px 4px 0px #303342, 6px 6px 0px #303342, 1px 6px 0px #303342, 6px 0px 0px #303342;
+}
+.button {
+  font-family: "Bungee";
+  font-size: 14px;
+  line-height: 22px;
+  color: #303342;
+  text-decoration: none;
+  padding: 1.2rem 4rem;
+  border-radius: 8px;
+  box-shadow: 3px 3px 0 0 #303342;
+  border: 3px solid #303342;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  transition: all .2s;
+  background: #f6daa3;
+  cursor: pointer;
+}
+.button:hover, .button:focus {
+  background: #f6daa3;
+}
+.button:active {
+  box-shadow: 0 0 0 0 #303342;
+  transform: translate(2px, 2px);
+}
+.screen {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  max-width: 320px;
+  margin: auto;
+}
+.background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+.header {
+  padding: 12px;
+  width: 100%;
+  z-index: 100;
+}
+
+/* Spacing */
+.padding-20 { padding: 20px; }
