@@ -1,14 +1,33 @@
 const buggerGame = function(host) {
 
+  var level = 0;
+
   const bindEvents = function() {
     host.addEventListener('click', function(event) {
       event.preventDefault();
       const element = event.target;
       if (element.closest('#play') !== null) {
-        renderGame().then(function() {
-          // initialise header
-          // kick off insects
+        renderLevel(level).then(function() {
+          // do something
         });
+      }
+    });
+    host.addEventListener('animationend', function(event) {
+      const element = event.target;
+      // level text 7 is the last node to appear
+      if (element.closest('.level-text-7') !== null) {
+        var parentEl = element.closest('.level-text');
+        if (!parentEl.classList.contains("stage-right")) {
+          parentEl.classList.add('stage-right');
+        }
+      }
+      // by the time level text 3 ends, the rest of the nodes have exitted
+      if (element.closest('.level-text-3') !== null) {
+        var parentEl = element.closest('.level-text');
+        if (parentEl.classList.contains("stage-right")) {
+          parentEl.remove();
+          console.log('Start the game');
+        }
       }
     });
   }
@@ -35,13 +54,22 @@ const buggerGame = function(host) {
     `;
   }
 
-  const renderGame = function() {
+  const renderLevel = function() {
     return new Promise(function(resolve, reject) {
       const screen = host.querySelector('#screen');
       if (screen !== null) {
         screen.innerHTML = '';
         screen.innerHTML = `
-          init game...
+        <div class="level-text">
+          <span class="level-text-1">L</span>
+          <span class="level-text-2">e</span>
+          <span class="level-text-3">v</span>
+          <span class="level-text-4">e</span>
+          <span class="level-text-5">l</span>
+          &nbsp;&nbsp;
+          <span class="level-text-6">0</span>
+          <span class="level-text-7">1</span>
+        </div>
         `;
       }
       resolve();

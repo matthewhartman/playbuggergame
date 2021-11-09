@@ -1,6 +1,13 @@
 /* Animations */
-@keyframes drop {
-  0% { opacity: 1; }
+@keyframes dropfromtop {
+  0% { transform: translate(0, -1000px); }
+  25% { transform: translate(0, 100px); }
+  50% { transform: translate(0, -50px); }
+  100% { transform: translate(0, 0); }
+}
+@keyframes stageright {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(10000px, 0); }
 }
 /* Fonts */
 @font-face {
@@ -31,6 +38,7 @@ body {
   color: #303342;
   background: #fff;
   overscroll-behavior: none;
+  overflow: hidden;
 }
 .sr {
   border: 0;
@@ -42,15 +50,53 @@ body {
   position: absolute;
   width: 1px;
 }
+.level-text {
+  font-family: "Bungee";
+  font-size: 42px;
+  line-height: normal;
+  color: #f6f3a3;
+  -webkit-text-stroke: 2px #303342;
+  text-shadow: 2px 2px 0px #303342, 3px 3px 0px #303342;
+  display: flex;
+}
+.level-text span {
+  display: block;
+  transform: translate(0, -1000px);
+  animation-name: dropfromtop;
+  animation-duration: .4s;
+  animation-fill-mode: forwards;
+}
+.level-text-1 { animation-delay: .2s; }
+.level-text-2 { animation-delay: .4s; }
+.level-text-3 { animation-delay: .6s; }
+.level-text-4 { animation-delay: .8s; }
+.level-text-5 { animation-delay: 1s; }
+.level-text-6 { animation-delay: 1.2s; }
+.level-text-7 { animation-delay: 1.4s; }
+
+.stage-right span {
+  transform: translate(0, 0);
+  animation-name: stageright;
+  animation-duration: .5s;
+  animation-fill-mode: forwards;
+}
+.stage-right .level-text-7 { animation-delay: 1s; }
+.stage-right .level-text-6 { animation-delay: 1.1s; }
+.stage-right .level-text-5 { animation-delay: 1.2s; }
+.stage-right .level-text-4 { animation-delay: 1.3s; }
+.stage-right .level-text-3 { animation-delay: 1.4s; }
+.stage-right .level-text-2 { animation-delay: 1.5s; }
+.stage-right .level-text-1 { animation-delay: 1.6s; }
+
 .logo {
   font-family: "Bungee";
   font-size: 56px;
   line-height: normal;
   color: #f6daa3;
-  margin: 0 0 2rem 0;
   letter-spacing: 0.16em;
   -webkit-text-stroke: 3px #303342;
   text-shadow: 4px 4px 0px #303342, 6px 6px 0px #303342, 1px 6px 0px #303342, 6px 0px 0px #303342;
+  margin: 0 0 2rem 0;
 }
 .button {
   font-family: "Bungee";
@@ -76,11 +122,16 @@ body {
   box-shadow: 0 0 0 0 #303342;
   transform: translate(2px, 2px);
 }
+.button-primary {
+  background: #ffb4f7;
+}
+.button-primary:hover, .button-primary:focus {
+  background: #ffb4f7;
+}
 .screen {
   position: relative;
   z-index: 2;
   text-align: center;
-  max-width: 320px;
   margin: auto;
 }
 .background {
