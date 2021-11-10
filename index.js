@@ -1,19 +1,19 @@
 const buggerGame = function(host) {
 
-  var level = 0;
+  var level = 1;
 
   const bindEvents = function() {
     host.addEventListener('click', function(event) {
       event.preventDefault();
       const element = event.target;
       if (element.closest('#play') !== null) {
-        renderLevel(level).then(function() {
-          // do something
-        });
+        renderLevelText();
+        // renderGameOverText();
       }
     });
     host.addEventListener('animationend', function(event) {
       const element = event.target;
+      // LEVEL TRANSITION TEXT
       // level text 7 is the last node to appear
       if (element.closest('.level-text-7') !== null) {
         var parentEl = element.closest('.level-text');
@@ -26,6 +26,11 @@ const buggerGame = function(host) {
         var parentEl = element.closest('.level-text');
         if (parentEl.classList.contains("stage-right")) {
           parentEl.remove();
+          const musicEl = host.querySelector('.music');
+          if (musicEl !== null) {
+            musicEl.currentTime = 0;
+            // musicEl.play();
+          }
           console.log('Start the game');
         }
       }
@@ -54,7 +59,19 @@ const buggerGame = function(host) {
     `;
   }
 
-  const renderLevel = function() {
+  const renderLevelNumber = function() {
+    const levelAsString = level.toString();
+    return `
+      <span class="level-text-6">
+        ${levelAsString.length === 1 ? '0' : levelAsString.split("")[0]}
+      </span>
+      <span class="level-text-7">
+        ${levelAsString.length === 1 ? levelAsString : levelAsString.split("")[1]}
+      </span>
+    `;
+  }
+
+  const renderLevelText = function() {
     return new Promise(function(resolve, reject) {
       const screen = host.querySelector('#screen');
       if (screen !== null) {
@@ -67,9 +84,42 @@ const buggerGame = function(host) {
           <span class="level-text-4">e</span>
           <span class="level-text-5">l</span>
           &nbsp;&nbsp;
-          <span class="level-text-6">0</span>
-          <span class="level-text-7">1</span>
+          ${renderLevelNumber()}
         </div>
+        <audio class="music" loop>
+          <source src="music.mp3" type="audio/mpeg">
+        </audio>
+        `;
+      }
+      resolve();
+    });
+  }
+
+  const renderGameOverText = function() {
+    return new Promise(function(resolve, reject) {
+      const screen = host.querySelector('#screen');
+      if (screen !== null) {
+        screen.innerHTML = '';
+        screen.innerHTML = `
+        <div class="gameover-text">
+          <span class="gameover-text-1">G</span>
+          <span class="gameover-text-2">a</span>
+          <span class="gameover-text-3">m</span>
+          <span class="gameover-text-4">e</span>
+          &nbsp;&nbsp;
+          <span class="gameover-text-5">O</span>
+          <span class="gameover-text-6">v</span>
+          <span class="gameover-text-7">e</span>
+          <span class="gameover-text-8">r</span>
+        </div>
+        <div class="gameover-replay-container">
+          <button class="button button-primary" id="play" type="button">
+            Play Again
+          </button>
+        </div>
+        <audio class="gameover-music" autoplay>
+          <source src="gameover.mp3" type="audio/mpeg">
+        </audio>
         `;
       }
       resolve();

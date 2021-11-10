@@ -5,6 +5,20 @@
   50% { transform: translate(0, -50px); }
   100% { transform: translate(0, 0); }
 }
+@keyframes fadeup {
+  0% {
+    opacity: 0;
+    transform: translate(0, 10px);
+  }
+  25% {
+    opacity: 1;
+    transform: translate(0, -10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(0, 0px);
+  }
+}
 @keyframes stageright {
   0% { transform: translate(0, 0); }
   100% { transform: translate(10000px, 0); }
@@ -17,22 +31,20 @@
   font-weight: 400;
   src: url('bungee.woff') format('woff');
 }
-*, :after, :before {
-  box-sizing:border-box;
+*,
+:after,
+:before {
+  box-sizing: border-box;
   user-select: none;
-}
-html, body, .game {
-  height: 100%;
 }
 html {
   -webkit-text-size-adjust: 100%;
 }
-.game {
-  display: flex;
+body, h1, button {
+  font-family: 'Bungee', sans-serif;
 }
 body {
   margin: 0;
-  font-family: 'Bungee', sans-serif;
   font-size: 14px;
   line-height: 22px;
   color: #303342;
@@ -40,6 +52,8 @@ body {
   overscroll-behavior: none;
   overflow: hidden;
 }
+html, body, .game { height: 100%; }
+.game { display: flex; }
 .sr {
   border: 0;
   clip: rect(0 0 0 0);
@@ -50,8 +64,16 @@ body {
   position: absolute;
   width: 1px;
 }
+.gameover-replay-container {
+  margin-top: 2.5rem;
+  opacity: 0;
+  transform: translate(0, 20px);
+  animation-name: fadeup;
+  animation-duration: .5s;
+  animation-fill-mode: forwards;
+  animation-delay: 1.9s;
+}
 .level-text {
-  font-family: "Bungee";
   font-size: 42px;
   line-height: normal;
   color: #f6f3a3;
@@ -59,7 +81,16 @@ body {
   text-shadow: 2px 2px 0px #303342, 3px 3px 0px #303342;
   display: flex;
 }
-.level-text span {
+.gameover-text {
+  font-size: 48px;
+  line-height: normal;
+  color: #ffb4f7;
+  -webkit-text-stroke: 2px #303342;
+  text-shadow: 2px 2px 0px #303342, 3px 3px 0px #303342;
+  display: flex;
+}
+.level-text span,
+.gameover-text span {
   display: block;
   transform: translate(0, -1000px);
   animation-name: dropfromtop;
@@ -73,6 +104,15 @@ body {
 .level-text-5 { animation-delay: 1s; }
 .level-text-6 { animation-delay: 1.2s; }
 .level-text-7 { animation-delay: 1.4s; }
+
+.gameover-text-1 { animation-delay: .2s; }
+.gameover-text-2 { animation-delay: .4s; }
+.gameover-text-3 { animation-delay: .6s; }
+.gameover-text-4 { animation-delay: .8s; }
+.gameover-text-5 { animation-delay: 1s; }
+.gameover-text-6 { animation-delay: 1.2s; }
+.gameover-text-7 { animation-delay: 1.4s; }
+.gameover-text-8 { animation-delay: 1.6s; }
 
 .stage-right span {
   transform: translate(0, 0);
@@ -89,7 +129,6 @@ body {
 .stage-right .level-text-1 { animation-delay: 1.6s; }
 
 .logo {
-  font-family: "Bungee";
   font-size: 56px;
   line-height: normal;
   color: #f6daa3;
@@ -99,7 +138,6 @@ body {
   margin: 0 0 2rem 0;
 }
 .button {
-  font-family: "Bungee";
   font-size: 14px;
   line-height: 22px;
   color: #303342;
