@@ -3,37 +3,34 @@ const buggerGame = function(host) {
   var level = 1;
 
   const bindEvents = function() {
-    host.addEventListener('click', function(event) {
+    host.addEventListener("click", function(event) {
       event.preventDefault();
       const element = event.target;
-      if (element.closest('#play') !== null) {
-        // renderLevelText();
-        // renderGameOverText();
-        renderCongratulations();
+      if (element.closest("#play") !== null) {
+        renderLevelText();
       }
     });
-    host.addEventListener('animationend', function(event) {
+    host.addEventListener("animationend", function(event) {
       const element = event.target;
       // LEVEL TRANSITION TEXT
       // level text 7 is the last node to appear
       if (element.closest('.level-text-7') !== null) {
-        var parentEl = element.closest('.level-text');
+        var parentEl = element.closest(".level-text");
         if (!parentEl.classList.contains("stage-right")) {
-          parentEl.classList.add('stage-right');
+          parentEl.classList.add("stage-right");
         }
       }
       // by the time level text 3 ends, the rest of the nodes have exitted
-      if (element.closest('.level-text-3') !== null) {
-        var parentEl = element.closest('.level-text');
+      if (element.closest(".level-text-3") !== null) {
+        var parentEl = element.closest(".level-text");
         if (parentEl.classList.contains("stage-right")) {
-          parentEl.remove();
-          const musicEl = host.querySelector('.music');
-          if (musicEl !== null) {
-            musicEl.currentTime = 0;
-            // musicEl.play();
-          }
-          console.log('Start the game');
+          renderCongratulations();
+          console.log("Start the game");
         }
+      }
+      // CONGRATS TRANSITION TEXT
+      if (element.classList.contains("congratulations-container")) {
+        renderGameOverText();
       }
     });
   }
@@ -87,8 +84,8 @@ const buggerGame = function(host) {
           &nbsp;&nbsp;
           ${renderLevelNumber()}
         </div>
-        <audio class="music" loop>
-          <source src="music.mp3" type="audio/mpeg">
+        <audio class="levelup-sound" autoplay>
+          <source src="levelup.mp3" type="audio/mpeg">
         </audio>
         `;
       }
