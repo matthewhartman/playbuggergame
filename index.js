@@ -7,8 +7,9 @@ const buggerGame = function(host) {
       event.preventDefault();
       const element = event.target;
       if (element.closest('#play') !== null) {
-        renderLevelText();
+        // renderLevelText();
         // renderGameOverText();
+        renderCongratulations();
       }
     });
     host.addEventListener('animationend', function(event) {
@@ -119,6 +120,42 @@ const buggerGame = function(host) {
         </div>
         <audio class="gameover-music" autoplay>
           <source src="gameover.mp3" type="audio/mpeg">
+        </audio>
+        `;
+      }
+      resolve();
+    });
+  }
+
+  const renderCongratulations = function() {
+    return new Promise(function(resolve, reject) {
+      const screen = host.querySelector('#screen');
+      if (screen !== null) {
+        screen.innerHTML = '';
+        screen.innerHTML = `
+        <div class="congratulations-container">
+          <div class="congratulations-text">
+            <span class="congratulations-text-1">C</span>
+            <span class="congratulations-text-2">o</span>
+            <span class="congratulations-text-3">n</span>
+            <span class="congratulations-text-4">g</span>
+            <span class="congratulations-text-5">r</span>
+            <span class="congratulations-text-6">a</span>
+            <span class="congratulations-text-7">t</span>
+            <span class="congratulations-text-8">s</span>
+            <span class="congratulations-text-9">!</span>
+          </div>
+          <div class="congratulations-clap-container">
+            <span class="congratulations-clap"></span>
+            <span class="congratulations-clap"></span>
+            <span class="congratulations-clap"></span>
+          </div>
+        </div>
+        <audio class="congratulations-clap" autoplay>
+          <source src="clap.mp3" type="audio/mpeg">
+        </audio>
+        <audio class="congratulations-music" autoplay>
+          <source src="congratulations.mp3" type="audio/mpeg">
         </audio>
         `;
       }

@@ -19,6 +19,60 @@
     transform: translate(0, 0px);
   }
 }
+@keyframes fadeout {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0px);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(0, -10px);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(0, 10px);
+  }
+}
+@keyframes clapleft {
+  0% {
+    transform: translate(-4px, 0);
+  }
+  50% {
+    transform: translate(0, 0px);
+  }
+  100% {
+    transform: translate(-4px, 0px);
+  }
+}
+@keyframes clapright {
+  0% {
+    transform: translate(4px, 0);
+  }
+  50% {
+    transform: translate(0, 0px);
+  }
+  100% {
+    transform: translate(4px, 0px);
+  }
+}
+@keyframes mexicanwave {
+  0% { transform: scale(0) translate(0, 40px); }
+  50% { transform: scale(1) translate(0, -40px); }
+  100% { transform: scale(1) translate(0, 0); }
+}
+@keyframes pop {
+  0% { transform: scale(0); }
+  50% { transform: scale(1.2); }
+  60% { transform: scale(1.8); }
+  70% { transform: scale(1.2); }
+  100% { transform: scale(0); }
+}
+@keyframes popout {
+  0% { opacity: 1; transform: scale(0); }
+  50% { opacity: 1; transform: scale(1.4); }
+  60% { opacity: 1; transform: scale(1.2); }
+  100% { opacity: 0; transform: scale(2); }
+}
 @keyframes stageright {
   0% { transform: translate(0, 0); }
   100% { transform: translate(10000px, 0); }
@@ -73,21 +127,28 @@ html, body, .game { height: 100%; }
   animation-fill-mode: forwards;
   animation-delay: 1.9s;
 }
+.level-text,
+.gameover-text,
+.congratulations-text {
+  line-height: normal;
+  letter-spacing: .22rem;
+  -webkit-text-stroke: 2px #303342;
+  text-shadow: 2px 2px 0px #303342, 3px 3px 0px #303342, 4px 4px 0px #303342;
+  display: flex;
+  position: relative;
+  z-index: 4;
+}
 .level-text {
   font-size: 42px;
-  line-height: normal;
-  color: #f6f3a3;
-  -webkit-text-stroke: 2px #303342;
-  text-shadow: 2px 2px 0px #303342, 3px 3px 0px #303342;
-  display: flex;
+  color: #f6f3a3;  
 }
 .gameover-text {
   font-size: 48px;
-  line-height: normal;
   color: #ffb4f7;
-  -webkit-text-stroke: 2px #303342;
-  text-shadow: 2px 2px 0px #303342, 3px 3px 0px #303342;
-  display: flex;
+}
+.congratulations-text {
+  font-size: 42px;
+  color: #00ffd1;
 }
 .level-text span,
 .gameover-text span {
@@ -96,6 +157,97 @@ html, body, .game { height: 100%; }
   animation-name: dropfromtop;
   animation-duration: .4s;
   animation-fill-mode: forwards;
+}
+.congratulations-text span {
+  display: block;
+  transform: scale(0) translate(0, 0);
+  animation-name: mexicanwave;
+  animation-duration: .4s;
+  animation-fill-mode: forwards;
+}
+.congratulations-text-1 { animation-delay: .1s; }
+.congratulations-text-2 { animation-delay: .2s; }
+.congratulations-text-3 { animation-delay: .3s; }
+.congratulations-text-4 { animation-delay: .4s; }
+.congratulations-text-5 { animation-delay: .5s; }
+.congratulations-text-6 { animation-delay: .6s; }
+.congratulations-text-7 { animation-delay: .7s; }
+.congratulations-text-8 { animation-delay: .8s; }
+.congratulations-text-9 { animation-delay: .9s; }
+.congratulations-clap-container {
+  transform: scale(0) translate(0, 0);
+  animation-name: fadeup;
+  animation-duration: .4s;
+  animation-fill-mode: forwards;
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+  position: relative;
+  z-index: 4;
+}
+.congratulations-container {
+  animation-name: fadeout;
+  animation-delay: 3s;
+  animation-duration: .5s;
+  animation-fill-mode: forwards;
+}
+.congratulations-container:before,
+.congratulations-container:after {
+  content: "";
+  width: 130px;
+  height: 130px;
+  display: block;
+  border-radius: 100%;
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  margin-left: -65px;
+  transform: scale(0);
+  z-index: 1;
+  animation-delay: 2.4s;
+  animation-duration: 1s;
+  animation-fill-mode: forwards;
+}
+.congratulations-container:before {
+  content: "";
+  background: #f6daa3;
+  z-index: 2;
+  animation-name: pop;
+}
+.congratulations-container:after {
+  content: "";
+  background: #fdf5e5;
+  top: -50px;
+  margin-left: -75px;
+  width: 150px;
+  height: 150px;
+  animation-name: popout;
+}
+.congratulations-clap {
+  display: flex;
+  margin-left: 1rem;
+  margin-right: 1rem;
+}
+.congratulations-clap:before,
+.congratulations-clap:after {
+  content: "";
+  width: 22px;
+  height: 42px;
+  display: block;
+}
+.congratulations-clap:before {
+  background: url(left-hand.svg) 50% 50% no-repeat;
+  animation-name: clapleft;
+  animation-duration: .15s;
+  animation-fill-mode: forwards;
+  animation-iteration-count: infinite;
+}
+.congratulations-clap:after {
+  background: url(right-hand.svg) 50% 50% no-repeat;
+  animation-name: clapright;
+  animation-duration: .15s;
+  animation-fill-mode: forwards;
+  animation-iteration-count: infinite;
 }
 .level-text-1 { animation-delay: .2s; }
 .level-text-2 { animation-delay: .4s; }
@@ -113,6 +265,7 @@ html, body, .game { height: 100%; }
 .gameover-text-6 { animation-delay: 1.2s; }
 .gameover-text-7 { animation-delay: 1.4s; }
 .gameover-text-8 { animation-delay: 1.6s; }
+
 
 .stage-right span {
   transform: translate(0, 0);
@@ -168,7 +321,7 @@ html, body, .game { height: 100%; }
 }
 .screen {
   position: relative;
-  z-index: 2;
+  z-index: 4;
   text-align: center;
   margin: auto;
 }
