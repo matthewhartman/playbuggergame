@@ -20,8 +20,8 @@ const buggerGame = function(host) {
           parentEl.classList.add("stage-right");
         }
       }
-      // by the time level text 3 ends, the rest of the nodes have exitted
-      if (element.closest(".level-text-3") !== null) {
+      // once the last node of .level-text-1 exits the screen - start the next level
+      if (element.closest(".level-text-1") !== null) {
         var parentEl = element.closest(".level-text");
         if (parentEl.classList.contains("stage-right")) {
           renderCongratulations();
