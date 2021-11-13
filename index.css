@@ -5,6 +5,10 @@
   50% { transform: translate(0, -50px); }
   100% { transform: translate(0, 0); }
 }
+@keyframes header {
+  0% { transform: translate(0, -100px); }
+  100% { transform: translate(0, 0); }
+}
 @keyframes fadeup {
   0% {
     opacity: 0;
@@ -234,22 +238,15 @@ html, body, .game { height: 100%; }
   margin-left: 1rem;
   margin-right: 1rem;
 }
-.congratulations-clap:before,
-.congratulations-clap:after {
-  content: "";
-  width: 22px;
-  height: 42px;
+.congratulations-clap-left-hand {
   display: block;
-}
-.congratulations-clap:before {
-  background: url(left-hand.svg) 50% 50% no-repeat;
   animation-name: clapleft;
   animation-duration: .15s;
   animation-fill-mode: forwards;
   animation-iteration-count: infinite;
 }
-.congratulations-clap:after {
-  background: url(right-hand.svg) 50% 50% no-repeat;
+.congratulations-clap-right-hand {
+  display: block;
   animation-name: clapright;
   animation-duration: .15s;
   animation-fill-mode: forwards;
@@ -271,8 +268,7 @@ html, body, .game { height: 100%; }
 .gameover-text-6 { animation-delay: 1.2s; }
 .gameover-text-7 { animation-delay: 1.4s; }
 .gameover-text-8 { animation-delay: 1.6s; }
-
-
+/* Text Exit */
 .stage-right span {
   transform: translate(0, 0);
   animation-name: stageright;
@@ -295,6 +291,46 @@ html, body, .game { height: 100%; }
   -webkit-text-stroke: 3px #303342;
   text-shadow: 4px 4px 0px #303342, 6px 6px 0px #303342, 1px 6px 0px #303342, 6px 0px 0px #303342;
   margin: 0 0 2rem 0;
+}
+
+.header {
+  width: 100%;
+  background: #fff;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  animation-name: header;
+  animation-duration: .3s;
+  animation-direction: forwards;
+}
+.header-inner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: auto;
+  margin-right: auto;
+  height: 56px;
+}
+.header-bugs,
+.header-time {
+  display: flex;
+  align-items: center;
+}
+.header-text {
+  font-size: 26px;
+  margin-left: .5rem;
+}
+.text-small {
+  font-size: 10px;
+}
+.header-divider {
+  width: 3px;
+  height: 10px;
+  background: #ccc;
+  display: block;
+  margin-left: 1.5rem;
+  margin-right: 1.5rem;
 }
 .button {
   font-size: 14px;
