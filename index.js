@@ -1,7 +1,8 @@
 const buggerGame = function(host) {
 
-  var level = 1;
-  var timer = null;
+  let level = 1;
+  let timer = null;
+  let currentTime = 30;
 
   const bindEvents = function() {
     host.addEventListener("click", function(event) {
@@ -13,25 +14,32 @@ const buggerGame = function(host) {
     });
     host.addEventListener("animationend", function(event) {
       const element = event.target;
-      // LEVEL TRANSITION TEXT
       // level text 7 is the last node to appear
       if (element.closest('.level-text-7') !== null) {
-        var parentEl = element.closest(".level-text");
+        const parentEl = element.closest(".level-text");
         if (!parentEl.classList.contains("stage-right")) {
           parentEl.classList.add("stage-right");
         }
       }
       // once the last node of .level-text-1 exits the screen - start the next level
       if (element.closest(".level-text-1") !== null) {
-        var parentEl = element.closest(".level-text");
+        const parentEl = element.closest(".level-text");
         if (parentEl.classList.contains("stage-right")) {
           // renderCongratulations();
-          renderStage();
+          renderStage().then(function() {
+            startTimer();
+          });
         }
       }
-      // CONGRATS TRANSITION TEXT
+      // once stage is fully hidden - render outcome
+      if (element.closest(".header-out") !== null) {
+        const headerEl = element.closest(".header-out");
+        if (headerEl.classList.contains("header-out")) {
+          renderGameOutcome();
+        }
+      }
       if (element.classList.contains("congratulations-container")) {
-        renderGameOverText();
+        renderLevelText();
       }
     });
   }
@@ -56,6 +64,53 @@ const buggerGame = function(host) {
         <rect width="100%" height="100%" fill="url(#grid)" />
       </svg>
     `;
+  }
+
+  const startTimer = function() {
+    let increment = 100 / currentTime;
+    timer = setInterval(() => {
+      if (currentTime !== -1) {
+        --currentTime
+        renderTime()
+      }
+      if (currentTime === 0) {
+        clearTimer();
+        unrenderStage();
+      }
+    }, 1000);
+  }
+
+  const renderTime = function() {
+    const timeEl = host.querySelector('.header-time');
+    if (timeEl !== null) {
+      timeEl.innerHTML = '';
+      timeEl.innerHTML = `${renderTimeAsNumber()}`
+    }
+  }
+
+  const renderGameOutcome = function() {
+    // if all bugs dead - congrats then next level
+    ++level
+    renderCongratulations();
+    // if did not kill all bugs - render game over
+    // level = 1
+  }
+
+  const unrenderStage = function() {
+    const header = host.querySelector('.header');
+    if (header !== null) {
+      header.classList.add('header-out');
+    }
+  }
+
+  const clearTimer = function() {
+    clearInterval(timer);
+    currentTime = 30;
+  }
+
+  const renderTimeAsNumber = function() {
+    const currentTimeAsString = currentTime.toString();
+    return `${currentTimeAsString.length === 1 ? '0' : currentTimeAsString.split("")[0]}${currentTimeAsString.length === 1 ? currentTimeAsString : currentTimeAsString.split("")[1]}`;
   }
 
   const renderLevelNumber = function() {
@@ -252,13 +307,13 @@ const buggerGame = function(host) {
               <div class="header-text">120</div>
             </div>
             <div class="header-divider"></div>
-            <div class="header-time">
+            <div class="header-clock">
               <svg width="26" height="40" viewBox="0 0 26 40" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M11.9997 9.77814C6.3635 9.77814 1.77783 14.3638 1.77783 20C1.77783 25.6362 6.3635 30.2219 11.9997 30.2219C17.6359 30.2219 22.2216 25.6362 22.2216 20C22.2216 14.3638 17.6359 9.77814 11.9997 9.77814ZM11.9997 29.3335C6.85321 29.3335 2.66624 25.147 2.66624 20C2.66624 14.853 6.85321 10.6665 11.9997 10.6665C17.1462 10.6665 21.3332 14.8535 21.3332 20C21.3332 25.1465 17.1462 29.3335 11.9997 29.3335Z" fill="#303342"/>
               <path d="M24.4439 17.7776H23.785C23.1791 14.5586 21.2909 11.7896 18.666 10.0284V2.22243C18.666 0.996966 17.6695 0 16.4435 0H7.55475C6.32881 0 5.33232 0.996492 5.33232 2.22243V10.0289C2.11956 12.184 0 15.8481 0 20C0 24.1519 2.12003 27.816 5.33327 29.9711V37.7776C5.33327 39.003 6.32976 40 7.5557 40H16.4445C17.6704 40 18.6669 39.0035 18.6669 37.7776V29.9711C21.2918 28.2099 23.18 25.4409 23.7859 22.222H24.4449C25.1801 22.222 25.7779 21.6237 25.7779 20.8889V19.1111C25.777 18.3758 25.1792 17.7776 24.4439 17.7776ZM6.22167 2.22243C6.22167 1.48715 6.81995 0.889352 7.55475 0.889352H16.4435C17.1788 0.889352 17.7766 1.48763 17.7766 2.22243V9.488C16.0619 8.54176 14.0931 8.00038 11.9996 8.00038C9.90613 8.00038 7.93733 8.54224 6.22167 9.48848V2.22243ZM17.7776 37.7776C17.7776 38.5128 17.1793 39.1106 16.4445 39.1106H7.5557C6.82042 39.1106 6.22262 38.5124 6.22262 37.7776V30.512C7.9378 31.4582 9.90661 32.0001 12.0006 32.0001C14.0945 32.0001 16.0629 31.4582 17.7785 30.512V37.7776H17.7776ZM11.9996 31.1112C5.87276 31.1112 0.888404 26.1269 0.888404 20C0.888404 13.8731 5.87276 8.88878 11.9996 8.88878C18.1265 8.88878 23.1108 13.8731 23.1108 20C23.1108 26.1269 18.1265 31.1112 11.9996 31.1112ZM24.4439 21.3331H23.9205C23.9698 20.8946 23.9992 20.4513 23.9992 20C23.9992 19.5487 23.9698 19.105 23.9205 18.6669H24.4439C24.689 18.6669 24.8886 18.8665 24.8886 19.1116V20.8893C24.8886 21.134 24.689 21.3331 24.4439 21.3331Z" fill="#303342"/>
               </svg>
               <div class="header-text text-small">Time</div>
-              <div class="header-text">30</div>
+              <div class="header-text header-time">${currentTime}</div>
             </div>
           </div>
         </div>

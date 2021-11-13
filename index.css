@@ -5,9 +5,13 @@
   50% { transform: translate(0, -50px); }
   100% { transform: translate(0, 0); }
 }
-@keyframes header {
+@keyframes headerin {
   0% { transform: translate(0, -100px); }
   100% { transform: translate(0, 0); }
+}
+@keyframes headerout {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(0, -100px); }
 }
 @keyframes fadeup {
   0% {
@@ -300,9 +304,14 @@ html, body, .game { height: 100%; }
   top: 0;
   left: 0;
   z-index: 2;
-  animation-name: header;
+  animation-name: headerin;
   animation-duration: .3s;
-  animation-direction: forwards;
+  animation-fill-mode: forwards;
+}
+.header-out {
+  animation-name: headerout;
+  animation-duration: .3s;
+  animation-fill-mode: forwards;
 }
 .header-inner {
   display: flex;
@@ -313,7 +322,7 @@ html, body, .game { height: 100%; }
   height: 56px;
 }
 .header-bugs,
-.header-time {
+.header-clock {
   display: flex;
   align-items: center;
 }
@@ -323,6 +332,9 @@ html, body, .game { height: 100%; }
 }
 .text-small {
   font-size: 10px;
+}
+.header-time {
+  width: 40px;
 }
 .header-divider {
   width: 3px;
