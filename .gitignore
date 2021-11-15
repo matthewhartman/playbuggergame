@@ -1,4 +1,13 @@
-node_modules
+.cache
 .DS_Store
-firebase-debug.log
+.config.codekit
+.codekit.cache
+.idea/
+scss/.sass-cache
+config.codekit
+node_modules/
+bower_components/
+npm-debug.log
 .firebase
+firebase-debug.log
+tmp/
