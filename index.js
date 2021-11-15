@@ -2,7 +2,9 @@ const buggerGame = function(host) {
 
   let level = 1;
   let timer = null;
-  let currentTime = 30;
+  let flyCount = 0;
+  let availableFlies = 40;
+  let currentTime = 60;
 
   const bindEvents = function() {
     host.addEventListener("click", function(event) {
@@ -12,39 +14,48 @@ const buggerGame = function(host) {
         renderLevelText();
       }
       if (element.closest(".game-stage") !== null) {
-        const slapEl = host.querySelector('.slap-sound');
-        if (slapEl !== null) {
-          slapEl.currentTime = 0;
-          slapEl.play();
-        }
+        assertSwat(event.clientX, event.clientY);
       }
     });
     host.addEventListener("animationend", function(event) {
       const element = event.target;
-      // level text 7 is the last node to appear
+      // callback after fly dies and vanishes
+      if (element.closest('[data-alive="false"]') !== null) {
+        element.remove();
+        renderLevelOutcome();
+      }
+      // callback after .level-text-7 is the last node to appear on screen
       if (element.closest('.level-text-7') !== null) {
         const parentEl = element.closest(".level-text");
         if (!parentEl.classList.contains("stage-right")) {
           parentEl.classList.add("stage-right");
         }
       }
-      // once the last node of .level-text-1 exits the screen - start the next level
+      // callback after last node of .level-text-1 exits the screen
       if (element.closest(".level-text-1") !== null) {
         const parentEl = element.closest(".level-text");
         if (parentEl.classList.contains("stage-right")) {
-          // renderCongratulations();
           renderStage().then(function() {
             startTimer();
           });
         }
       }
-      // once stage is fully hidden - render outcome
+      // callback once stage is finished hiding
       if (element.closest(".header-out") !== null) {
         const headerEl = element.closest(".header-out");
         if (headerEl.classList.contains("header-out")) {
-          renderGameOutcome();
+          if (availableFlies <= 0) {
+            renderLevelOutcome();
+          } else {
+            renderGameOverText().then(function() {
+              clearTimer();
+              newLevelReset();
+              level = 1;
+            });
+          }
         }
       }
+      // callback after congratulations animation is done
       if (element.classList.contains("congratulations-container")) {
         renderLevelText();
       }
@@ -73,12 +84,133 @@ const buggerGame = function(host) {
     `;
   }
 
+  const createPath = function(element) {
+    var startX = Math.random() < 0.5 ? -30 : element.offsetWidth + 30;
+    var startY = Math.random() < 0.5 ? -30 : element.offsetHeight + 30
+    var points = [{ x: startX, y: startY }];
+
+    function getRandomInt(max) {
+      return Math.floor(Math.random() * max);
+    }
+
+    for (var i = 0; i < 9; i++) {
+      var x = getRandomInt(element.offsetWidth) - 30;
+      var y = getRandomInt(element.offsetHeight) - 30;
+      points.push({ x: x, y: y });
+    }
+    points.push({
+      x: Math.random() < 0.5 ? -30 : element.offsetWidth + 30,
+      y: Math.random() < 0.5 ? -30 : element.offsetHeight + 30
+    });
+    return points;
+  }
+
+  const generateFlies = function(numberOfFlies) {
+    for (let i = 0; i < numberOfFlies; i++) {
+      generateFly();
+    }
+  }
+
+  const generateFly = function() {
+    ++flyCount;
+    const gameStage = host.querySelector('.game-stage');
+    const path = createPath(gameStage);
+    const fly = `
+    <span
+      data-index="${flyCount}"
+      class="fly"
+      data-alive="true"
+    >
+      <style>
+        @keyframes fly${flyCount} {
+          ${path.map(function(path, index) {
+            return `
+              ${index === 0 ? `${index}% { transform: translate(${path.x}px, ${path.y}px); }` : `${index}0% { transform: translate(${path.x}px, ${path.y}px); }`}
+            `;
+          }).join('')}
+        }
+        [data-index="${flyCount}"] {
+          animation-name: fly${flyCount};
+          animation-duration: 20s;
+          animation-fill-mode: forwards;
+          animation-iteration-count: infinite;
+          animation-timing-function: cubic-bezier(0.1, -0.1, 0.1, 0);
+        }
+      </style>
+    </span>
+    `;
+    if (gameStage !== null) {
+      gameStage.insertAdjacentHTML('afterbegin', fly);
+    }
+  }
+
+  const renderAvailableFliesCount = function() {
+    const flyCountEl = host.querySelector('.fly-count');
+    if (flyCountEl !== null) {
+      flyCountEl.innerHTML = availableFlies;
+    }
+  }
+
+  const assertSwat = function(x, y) {
+    const allAliveFlies = host.querySelectorAll('[data-alive="true"]');
+    playSlapSound();
+    allAliveFlies.forEach(function(fly) {
+      if (Math.abs(fly.getBoundingClientRect().x - x) < 40 && Math.abs(fly.getBoundingClientRect().y - y) < 40) {
+        if (fly.dataset.alive === 'true') {
+          --availableFlies
+          renderAvailableFliesCount();
+          playSplatSound();
+          fly.style = `transform: translate(${fly.getBoundingClientRect().x}px, ${fly.getBoundingClientRect().y}px)`;
+          fly.innerHTML = '';
+          fly.innerHTML = `
+            <style>
+              @keyframes fly${fly.dataset.index} {
+                0% {
+                  opacity: 1;
+                  transform: translate(${fly.getBoundingClientRect().x}px, ${fly.getBoundingClientRect().y}px)
+                }
+                100% {
+                  opacity: 0;
+                  transform: translate(${fly.getBoundingClientRect().x}px, ${fly.getBoundingClientRect().y + 400}px)
+                }
+              }
+              [data-index="${fly.dataset.index}"] {
+                animation-name: fly${fly.dataset.index};
+                animation-duration: .5s;
+                animation-fill-mode: forwards;
+                animation-timing-function: cubic-bezier(0.1, -0.1, 0.1, 0);
+              }
+            </style>
+          `
+          fly.dataset.alive = 'false';
+        }
+      }
+    })
+  }
+
+  const playSlapSound = function() {
+    const slapEl = host.querySelector('.slap-sound');
+    if (slapEl !== null) {
+      slapEl.currentTime = 0;
+      slapEl.play();
+    }
+  }
+
+  const playSplatSound = function() {
+    const slapEl = host.querySelector('.splat-sound');
+    if (slapEl !== null) {
+      slapEl.currentTime = 0;
+      slapEl.play();
+    }
+  }
+
   const startTimer = function() {
     let increment = 100 / currentTime;
     timer = setInterval(() => {
-      if (currentTime !== -1) {
+      if (currentTime !== 0) {
         --currentTime
-        renderTime()
+        renderTime();
+        generateFlies(1);
       }
       if (currentTime === 0) {
         clearTimer();
@@ -95,12 +227,13 @@ const buggerGame = function(host) {
     }
   }
 
-  const renderGameOutcome = function() {
-    // if all bugs dead - congrats then next level
-    ++level
-    renderCongratulations();
-    // if did not kill all bugs - render game over
-    // level = 1
+  const renderLevelOutcome = function() {
+    if (availableFlies <= 0) {
+      ++level;
+      clearTimer();
+      renderCongratulations();
+      newLevelReset();
+    }
   }
 
   const unrenderStage = function() {
@@ -110,9 +243,14 @@ const buggerGame = function(host) {
     }
   }
 
+  const newLevelReset = function() {
+    currentTime = 60;
+    availableFlies = 40;
+    flyCount = 0;
+  }
+
   const clearTimer = function() {
     clearInterval(timer);
-    currentTime = 30;
   }
 
   const renderTimeAsNumber = function() {
@@ -162,157 +300,12 @@ const buggerGame = function(host) {
       if (screen !== null) {
         screen.innerHTML = '';
         screen.innerHTML = `
-        <div class="game-stage">
           <div class="header">
-          <div class="header-inner">
+            <div class="header-inner">
               <div class="header-bugs">
-                <svg width="22" height="12" viewBox="0 0 22 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="12" y="11" width="1" height="1" fill="black"/>
-                <rect x="11" y="11" width="1" height="1" fill="black"/>
-                <rect x="10" y="11" width="1" height="1" fill="black"/>
-                <rect x="9" y="11" width="1" height="1" fill="black"/>
-                <rect x="8" y="11" width="1" height="1" fill="black"/>
-                <rect x="13" y="10" width="1" height="1" fill="black"/>
-                <rect x="7" y="10" width="1" height="1" fill="black"/>
-                <rect width="1" height="1" transform="matrix(-1 0 0 1 16 9)" fill="black"/>
-                <rect width="1" height="1" transform="matrix(-1 0 0 1 17 9)" fill="black"/>
-                <rect width="1" height="1" transform="matrix(-1 0 0 1 18 9)" fill="black"/>
-                <rect width="1" height="1" transform="matrix(-1 0 0 1 19 9)" fill="black"/>
-                <rect width="1" height="1" transform="matrix(-1 0 0 1 16 8)" fill="black"/>
-                <rect width="1" height="1" transform="matrix(-1 0 0 1 17 8)" fill="black"/>
-                <rect width="1" height="1" transform="matrix(-1 0 0 1 18 8)" fill="black"/>
-                <rect width="1" height="1" transform="matrix(-1 0 0 1 19 8)" fill="black"/>
-                <rect width="1" height="1" transform="matrix(-1 0 0 1 20 8)" fill="black"/>
-                <rect width="1" height="1" transform="matrix(-1 0 0 1 16 7)" fill="black"/>
-                <rect width="1" height="1" transform="matrix(-1 0 0 1 20 7)" fill="black"/>
-                <rect width="1" height="1" transform="matrix(-1 0 0 1 21 7)" fill="black"/>
-                <rect width="1" height="1" transform="matrix(-1 0 0 1 16 6)" fill="black"/>
-                <rect width="1" height="1" transform="matrix(-1 0 0 1 20 6)" fill="black"/>
-                <rect width="1" height="1" transform="matrix(-1 0 0 1 21 6)" fill="black"/>
-                <rect width="1" height="1" transform="matrix(-1 0 0 1 16 5)" fill="black"/>
-                <rect width="1" height="1" transform="matrix(-1 0 0 1 21 5)" fill="black"/>
-                <rect width="1" height="1" transform="matrix(-1 0 0 1 22 5)" fill="black"/>
-                <rect width="1" height="1" transform="matrix(-1 0 0 1 21 4)" fill="black"/>
-                <rect width="1" height="1" transform="matrix(-1 0 0 1 22 4)" fill="black"/>
-                <rect width="1" height="1" transform="matrix(-1 0 0 1 16 3)" fill="black"/>
-                <rect width="1" height="1" transform="matrix(-1 0 0 1 21 3)" fill="black"/>
-                <rect width="1" height="1" transform="matrix(-1 0 0 1 22 3)" fill="black"/>
-                <rect width="1" height="1" transform="matrix(-1 0 0 1 16 2)" fill="black"/>
-                <rect width="1" height="1" transform="matrix(-1 0 0 1 17 2)" fill="black"/>
-                <rect width="1" height="1" transform="matrix(-1 0 0 1 20 2)" fill="black"/>
-                <rect width="1" height="1" transform="matrix(-1 0 0 1 21 2)" fill="black"/>
-                <rect width="1" height="1" transform="matrix(-1 0 0 1 16 1)" fill="black"/>
-                <rect width="1" height="1" transform="matrix(-1 0 0 1 17 1)" fill="black"/>
-                <rect width="1" height="1" transform="matrix(-1 0 0 1 18 1)" fill="black"/>
-                <rect width="1" height="1" transform="matrix(-1 0 0 1 19 1)" fill="black"/>
-                <rect width="1" height="1" transform="matrix(-1 0 0 1 20 1)" fill="black"/>
-                <rect width="1" height="1" transform="matrix(-1 0 0 1 21 1)" fill="black"/>
-                <rect width="1" height="1" transform="matrix(-1 0 0 1 17 0)" fill="black"/>
-                <rect width="1" height="1" transform="matrix(-1 0 0 1 18 0)" fill="black"/>
-                <rect width="1" height="1" transform="matrix(-1 0 0 1 19 0)" fill="black"/>
-                <rect width="1" height="1" transform="matrix(-1 0 0 1 20 0)" fill="black"/>
-                <rect x="6" y="9" width="1" height="1" fill="black"/>
-                <rect x="5" y="9" width="1" height="1" fill="black"/>
-                <rect x="4" y="9" width="1" height="1" fill="black"/>
-                <rect x="3" y="9" width="1" height="1" fill="black"/>
-                <rect x="6" y="8" width="1" height="1" fill="black"/>
-                <rect x="5" y="8" width="1" height="1" fill="black"/>
-                <rect x="4" y="8" width="1" height="1" fill="black"/>
-                <rect x="3" y="8" width="1" height="1" fill="black"/>
-                <rect x="2" y="8" width="1" height="1" fill="black"/>
-                <rect x="6" y="7" width="1" height="1" fill="black"/>
-                <rect x="2" y="7" width="1" height="1" fill="black"/>
-                <rect x="1" y="7" width="1" height="1" fill="black"/>
-                <rect x="6" y="6" width="1" height="1" fill="black"/>
-                <rect x="2" y="6" width="1" height="1" fill="black"/>
-                <rect x="1" y="6" width="1" height="1" fill="black"/>
-                <rect x="6" y="5" width="1" height="1" fill="black"/>
-                <rect x="1" y="5" width="1" height="1" fill="black"/>
-                <rect y="5" width="1" height="1" fill="black"/>
-                <rect x="1" y="4" width="1" height="1" fill="black"/>
-                <rect y="4" width="1" height="1" fill="black"/>
-                <rect x="6" y="3" width="1" height="1" fill="black"/>
-                <rect x="1" y="3" width="1" height="1" fill="black"/>
-                <rect y="3" width="1" height="1" fill="black"/>
-                <rect x="6" y="2" width="1" height="1" fill="black"/>
-                <rect x="5" y="2" width="1" height="1" fill="black"/>
-                <rect x="2" y="2" width="1" height="1" fill="black"/>
-                <rect x="1" y="2" width="1" height="1" fill="black"/>
-                <rect x="6" y="1" width="1" height="1" fill="black"/>
-                <rect x="5" y="1" width="1" height="1" fill="black"/>
-                <rect x="4" y="1" width="1" height="1" fill="black"/>
-                <rect x="3" y="1" width="1" height="1" fill="black"/>
-                <rect x="2" y="1" width="1" height="1" fill="black"/>
-                <rect x="1" y="1" width="1" height="1" fill="black"/>
-                <rect x="5" width="1" height="1" fill="black"/>
-                <rect x="4" width="1" height="1" fill="black"/>
-                <rect x="3" width="1" height="1" fill="black"/>
-                <rect x="2" width="1" height="1" fill="black"/>
-                <rect x="12" y="10" width="1" height="1" fill="#FF1808"/>
-                <rect x="11" y="10" width="1" height="1" fill="#FF1808"/>
-                <rect x="10" y="10" width="1" height="1" fill="#FF1808"/>
-                <rect x="9" y="10" width="1" height="1" fill="#FF1808"/>
-                <rect x="8" y="10" width="1" height="1" fill="#FF1808"/>
-                <rect x="14" y="9" width="1" height="1" fill="#FF1808"/>
-                <rect x="13" y="9" width="1" height="1" fill="#FF1808"/>
-                <rect x="12" y="9" width="1" height="1" fill="#FF1808"/>
-                <rect x="11" y="9" width="1" height="1" fill="#FF1808"/>
-                <rect x="10" y="9" width="1" height="1" fill="#FF1808"/>
-                <rect x="9" y="9" width="1" height="1" fill="#FF1808"/>
-                <rect x="8" y="9" width="1" height="1" fill="#FF1808"/>
-                <rect x="7" y="9" width="1" height="1" fill="#FF1808"/>
-                <rect x="14" y="8" width="1" height="1" fill="#FF1808"/>
-                <rect x="13" y="8" width="1" height="1" fill="#FF1808"/>
-                <rect x="12" y="8" width="1" height="1" fill="#FF1808"/>
-                <rect x="11" y="8" width="1" height="1" fill="#FF1808"/>
-                <rect x="7" y="8" width="1" height="1" fill="#FF1808"/>
-                <rect x="14" y="7" width="1" height="1" fill="#FF1808"/>
-                <rect x="13" y="7" width="1" height="1" fill="#FF1808"/>
-                <rect x="12" y="7" width="1" height="1" fill="#FF1808"/>
-                <rect x="14" y="6" width="1" height="1" fill="#FF1808"/>
-                <rect x="13" y="6" width="1" height="1" fill="#FF1808"/>
-                <rect x="12" y="6" width="1" height="1" fill="#FF1808"/>
-                <rect x="14" y="5" width="1" height="1" fill="#FF1808"/>
-                <rect x="13" y="5" width="1" height="1" fill="#FF1808"/>
-                <rect x="12" y="5" width="1" height="1" fill="#FF1808"/>
-                <rect x="12" y="4" width="1" height="1" fill="#FF1808"/>
-                <rect x="11" y="4" width="1" height="1" fill="#FF1808"/>
-                <rect x="10" y="8" width="1" height="1" fill="#FF8566"/>
-                <rect x="9" y="8" width="1" height="1" fill="#FF8566"/>
-                <rect x="8" y="8" width="1" height="1" fill="#FF8566"/>
-                <rect x="11" y="7" width="1" height="1" fill="#FF8566"/>
-                <rect x="10" y="7" width="1" height="1" fill="#FF8566"/>
-                <rect x="9" y="7" width="1" height="1" fill="#FF8566"/>
-                <rect x="8" y="7" width="1" height="1" fill="#FF8566"/>
-                <rect x="7" y="7" width="1" height="1" fill="#FF8566"/>
-                <rect x="11" y="6" width="1" height="1" fill="#FF8566"/>
-                <rect x="10" y="6" width="1" height="1" fill="#FF8566"/>
-                <rect x="9" y="6" width="1" height="1" fill="#FF8566"/>
-                <rect x="8" y="6" width="1" height="1" fill="#FF8566"/>
-                <rect x="7" y="6" width="1" height="1" fill="#FF8566"/>
-                <rect x="11" y="5" width="1" height="1" fill="#FF8566"/>
-                <rect x="10" y="5" width="1" height="1" fill="#FF8566"/>
-                <rect x="9" y="5" width="1" height="1" fill="#FF8566"/>
-                <rect x="8" y="5" width="1" height="1" fill="#FF8566"/>
-                <rect x="7" y="5" width="1" height="1" fill="#FF8566"/>
-                <rect x="10" y="4" width="1" height="1" fill="#FF8566"/>
-                <rect x="9" y="4" width="1" height="1" fill="#FF8566"/>
-                <rect x="8" y="4" width="1" height="1" fill="#FF8566"/>
-                <rect x="14" y="4" width="1" height="1" fill="black"/>
-                <rect x="13" y="4" width="1" height="1" fill="black"/>
-                <rect x="7" y="4" width="1" height="1" fill="black"/>
-                <rect x="14" y="3" width="1" height="1" fill="black"/>
-                <rect x="13" y="3" width="1" height="1" fill="black"/>
-                <rect x="12" y="3" width="1" height="1" fill="black"/>
-                <rect x="12" y="3" width="1" height="1" fill="black"/>
-                <rect x="11" y="3" width="1" height="1" fill="black"/>
-                <rect x="10" y="3" width="1" height="1" fill="black"/>
-                <rect x="9" y="3" width="1" height="1" fill="black"/>
-                <rect x="8" y="3" width="1" height="1" fill="black"/>
-                <rect x="7" y="3" width="1" height="1" fill="black"/>
-                </svg>
+                <div class="fly"></div>
                 <div class="header-text text-small">Left</div>
-                <div class="header-text">120</div>
+                <div class="header-text fly-count">${availableFlies}</div>
               </div>
               <div class="header-divider"></div>
               <div class="header-clock">
@@ -325,12 +318,16 @@ const buggerGame = function(host) {
               </div>
             </div>
           </div>
-        </div>
+          <div class="game-stage">
+          </div>
         <audio class="music" autoplay loop>
           <source src="music.mp3" type="audio/mpeg">
         </audio>
         <audio class="slap-sound">
           <source src="slap.mp3" type="audio/mpeg">
+        </audio>
+        <audio class="splat-sound">
+          <source src="splat.mp3" type="audio/mpeg">
         </audio>
         `;
       }

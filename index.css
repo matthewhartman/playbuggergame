@@ -402,6 +402,16 @@ html, body, .game { height: 100%; }
   width: 100%;
   z-index: 100;
 }
-
-/* Spacing */
-.padding-20 { padding: 20px; }
+.fly {
+  width: 16px;
+  height: 16px;
+  border-radius: 100%;
+  display: block;
+  background: #222;  
+}
+.fly[data-alive] {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 2;
+}
