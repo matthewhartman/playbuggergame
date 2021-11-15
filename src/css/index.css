@@ -403,11 +403,16 @@ html, body, .game { height: 100%; }
   z-index: 100;
 }
 .fly {
-  width: 16px;
-  height: 16px;
-  border-radius: 100%;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.fly svg {
+  width: 22px;
+  height: auto;
   display: block;
-  background: #222;  
 }
 .fly[data-alive] {
   position: fixed;

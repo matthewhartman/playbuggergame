@@ -1,5 +1,6 @@
 import '../css/index.css';
-import { leftHand, rightHand } from './hands';
+import { LEFT_HAND, RIGHT_HAND } from './hands';
+import { FLY } from './fly';
 import MUSIC_LEVEL from '../audio/music.mp3';
 import MUSIC_GAMEOVER from '../audio/gameover.mp3';
 import MUSIC_CONGRATULATIONS from '../audio/congratulations.mp3';
@@ -131,6 +132,7 @@ const buggerGame = function(host) {
       class="fly"
       data-alive="true"
     >
+      ${FLY}
       <style>
         @keyframes fly${flyCount} {
           ${path.map(function(path, index) {
@@ -173,6 +175,7 @@ const buggerGame = function(host) {
           fly.style = `transform: translate(${fly.getBoundingClientRect().x}px, ${fly.getBoundingClientRect().y}px)`;
           fly.innerHTML = '';
           fly.innerHTML = `
+            ${FLY}
             <style>
               @keyframes fly${fly.dataset.index} {
                 0% {
@@ -313,7 +316,7 @@ const buggerGame = function(host) {
           <div class="header">
             <div class="header-inner">
               <div class="header-bugs">
-                <div class="fly"></div>
+                <div class="fly">${FLY}</div>
                 <div class="header-text text-small">Left</div>
                 <div class="header-text fly-count">${availableFlies}</div>
               </div>
@@ -396,16 +399,16 @@ const buggerGame = function(host) {
           </div>
           <div class="congratulations-clap-container">
             <div class="congratulations-clap">
-              ${leftHand}
-              ${rightHand}
+              ${LEFT_HAND}
+              ${RIGHT_HAND}
             </div>
             <div class="congratulations-clap">
-              ${leftHand}
-              ${rightHand}
+              ${LEFT_HAND}
+              ${RIGHT_HAND}
             </div>
             <div class="congratulations-clap">
-              ${leftHand}
-              ${rightHand}
+              ${LEFT_HAND}
+              ${RIGHT_HAND}
             </div>
           </div>
         </div>
