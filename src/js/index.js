@@ -11,11 +11,12 @@ import SOUND_CLAP from '../audio/clap.mp3';
 
 const buggerGame = function(host) {
 
-  let level = 1;
   let timer = null;
+  let level = 1;
   let flyCount = 0;
   let availableFlies = 40;
-  let currentTime = 60;
+  let currentTime = 90;
+  let flySpeed = 40;
 
   const bindEvents = function() {
     host.addEventListener("click", function(event) {
@@ -59,9 +60,7 @@ const buggerGame = function(host) {
             renderLevelOutcome();
           } else {
             renderGameOverText().then(function() {
-              clearTimer();
-              newLevelReset();
-              level = 1;
+              resetAllSettings();
             });
           }
         }
@@ -97,7 +96,7 @@ const buggerGame = function(host) {
 
   const createPath = function(element) {
     var startX = Math.random() < 0.5 ? -30 : element.offsetWidth + 30;
-    var startY = Math.random() < 0.5 ? -30 : element.offsetHeight + 30
+    var startY = Math.random() < 60 ? 30 : element.offsetHeight + 30
     var points = [{ x: startX, y: startY }];
 
     function getRandomInt(max) {
@@ -105,13 +104,13 @@ const buggerGame = function(host) {
     }
 
     for (var i = 0; i < 9; i++) {
-      var x = getRandomInt(element.offsetWidth) - 30;
-      var y = getRandomInt(element.offsetHeight) - 30;
+      var x = getRandomInt(element.offsetWidth);
+      var y = getRandomInt(element.offsetHeight);
       points.push({ x: x, y: y });
     }
     points.push({
       x: Math.random() < 0.5 ? -30 : element.offsetWidth + 30,
-      y: Math.random() < 0.5 ? -30 : element.offsetHeight + 30
+      y: Math.random() < 60 ? 30 : element.offsetHeight + 30
     });
     return points;
   }
@@ -143,7 +142,7 @@ const buggerGame = function(host) {
         }
         [data-index="${flyCount}"] {
           animation-name: fly${flyCount};
-          animation-duration: 20s;
+          animation-duration: ${flySpeed}s;
           animation-fill-mode: forwards;
           animation-iteration-count: infinite;
           animation-timing-function: cubic-bezier(0.1, -0.1, 0.1, 0);
@@ -244,8 +243,8 @@ const buggerGame = function(host) {
     if (availableFlies <= 0) {
       ++level;
       clearTimer();
+      setNewLevelSettings();
       renderCongratulations();
-      newLevelReset();
     }
   }
 
@@ -256,10 +255,32 @@ const buggerGame = function(host) {
     }
   }
 
-  const newLevelReset = function() {
-    currentTime = 60;
-    availableFlies = 40;
+  const resetAllSettings = function() {
+    clearTimer();
+    level = 1;
+    currentTime = 90;
+    availableFlies = 30;
     flyCount = 0;
+    flySpeed = 40;
+  }
+
+  const setNewLevelSettings = function() {
+    flyCount = 0;
+    if (level === 2) {
+      currentTime = 90;
+      availableFlies = 50;
+      flySpeed = 30;
+    }
+    if (level === 3) {
+      currentTime = 90;
+      availableFlies = 60;
+      flySpeed = 20;
+    }
+    if (level === 4) {
+      currentTime = 90;
+      availableFlies = 70;
+      flySpeed = 15;
+    }
   }
 
   const clearTimer = function() {
