@@ -337,6 +337,27 @@ html, body, .game { height: 100%; }
   display: flex;
   align-items: center;
 }
+.header-clock {
+  position: relative;
+}
+.header-clock:before,
+.header-clock:after {
+  content: "";
+  width: 2px;
+  height: 4px;
+  background: #222;
+  border-radius: 100%;
+  position: absolute;
+  display: block;
+}
+.header-clock:before {
+  top: 16px;
+  left: 8px;
+}
+.header-clock:after {
+  top: 16px;
+  left: 14px;
+}
 .header-text {
   font-size: 26px;
   margin-left: .5rem;
