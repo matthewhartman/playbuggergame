@@ -91,6 +91,20 @@
     transform: translate(500px, 0);
   }
 }
+@keyframes blink {
+  0% {
+    transform: scaleY(1);
+    top: 16px;
+  }
+  50% {
+    transform: scaleY(.3);
+    top: 15px;
+  }
+  100% {
+    transform: scaleY(1);
+    top: 16px;
+  }
+}
 /* Fonts */
 @font-face {
   font-display: fallback;
@@ -344,19 +358,47 @@ html, body, .game { height: 100%; }
 .header-clock:after {
   content: "";
   width: 2px;
-  height: 4px;
+  height: 3px;
   background: #222;
   border-radius: 100%;
   position: absolute;
   display: block;
+  transition: all .2s;
+  top: 16px;
 }
 .header-clock:before {
-  top: 16px;
   left: 8px;
 }
 .header-clock:after {
-  top: 16px;
   left: 14px;
+}
+.header-clock-mouth {
+  width: 8px;
+  height: 2px;
+  position: absolute;
+  top: 23px;
+  left: 8px;
+  display: block;
+  background: #222;
+  transition: all .2s;
+}
+.header-clock-pressure .header-time {
+  color: #ff1808;
+}
+.header-clock-pressure .header-clock-mouth {
+  width: 6px;
+  height: 6px;
+  border-radius: 100%;
+  left: 9px;
+  top: 21px;
+}
+.header-clock-pressure:before,
+.header-clock-pressure:after {
+  transform-origin: 0 100%;
+  animation-name: blink;
+  animation-duration: .98s;
+  animation-fill-mode: forwards;
+  animation-iteration-count: infinite;
 }
 .header-text {
   font-size: 26px;
