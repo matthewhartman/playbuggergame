@@ -27,7 +27,7 @@
   },
   "scripts": {
     "start": "NODE_ENV=development parcel src/index.html --open --out-dir ./tmp",
-    "build": "NODE_ENV=production npm run clean && mkdir dist && rollup -c && node generate-app.js",
+    "build": "NODE_ENV=production npm run clean && mkdir dist && rollup -c && node generate-pwa.js && cp -r img dist",
     "clean": "rm -rf dist && rm -rf tmp"
   }
 }

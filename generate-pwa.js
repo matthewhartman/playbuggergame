@@ -20,9 +20,9 @@ fs.readFile('./tmp/index.js', 'utf8', function (err,data) {
   <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="mask-icon" href="/img/safari-pinned-tab.svg" color="#101010">
-  <meta name="msapplication-TileColor" content="#101010">
-  <meta name="theme-color" content="#101010">
+  <link rel="mask-icon" href="/img/safari-pinned-tab.svg" color="#ffffff">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="theme-color" content="#ffffff">
 </head>
 <body>
 <div id="game" class="game"></div>
@@ -144,8 +144,8 @@ const sitewebmanifest = `{
   "description": "Try to swat as many bugs as you can before the timer runs out. #GitHubGameOff",
   "start_url": "/index.html",
   "scope": "/",
-  "theme_color": "#101010",
-  "background_color": "#101010"
+  "theme_color": "#ffffff",
+  "background_color": "#ffffff"
 }`;
 fs.writeFile('./dist/site.webmanifest', sitewebmanifest, 'utf8', function (err) {
   if (err) return console.log(err);
