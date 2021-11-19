@@ -94,14 +94,14 @@ const buggerGame = function(host) {
     `;
   }
 
+  const getRandomInt = function(max) {
+    return Math.floor(Math.random() * max);
+  }
+
   const createPath = function(element) {
     var startX = Math.random() < 0.5 ? -30 : element.offsetWidth + 30;
     var startY = Math.random() < 60 ? 30 : element.offsetHeight + 30
     var points = [{ x: startX, y: startY }];
-
-    function getRandomInt(max) {
-      return Math.floor(Math.random() * max);
-    }
 
     for (var i = 0; i < 9; i++) {
       var x = getRandomInt(element.offsetWidth);
@@ -218,11 +218,14 @@ const buggerGame = function(host) {
 
   const startTimer = function() {
     let increment = 100 / currentTime;
+    const totalFlies = availableFlies;
     timer = setInterval(() => {
       if (currentTime !== 0) {
         --currentTime
         renderTime();
-        generateFlies(1);
+        if (flyCount !== totalFlies) {
+          generateFlies(1);
+        }
       }
       if (currentTime === 10) {
         renderClockFace();

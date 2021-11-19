@@ -105,6 +105,11 @@
     top: 16px;
   }
 }
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
 /* Fonts */
 @font-face {
   font-display: fallback;
@@ -346,6 +351,17 @@ html, body, .game { height: 100%; }
   margin-right: auto;
   height: 56px;
 }
+.header-text {
+  font-size: 26px;
+  margin-left: .5rem;
+}
+.text-small {
+  font-size: 10px;
+}
+.header-time {
+  width: 40px;
+  transition: .2s all;
+}
 .header-bugs,
 .header-clock {
   display: flex;
@@ -353,6 +369,14 @@ html, body, .game { height: 100%; }
 }
 .header-clock {
   position: relative;
+}
+.header-divider {
+  width: 3px;
+  height: 10px;
+  background: #ccc;
+  display: block;
+  margin-left: 1.5rem;
+  margin-right: 1.5rem;
 }
 .header-clock:before,
 .header-clock:after {
@@ -384,6 +408,11 @@ html, body, .game { height: 100%; }
 }
 .header-clock-pressure .header-time {
   color: #ff1808;
+  transform-origin: 50% 50%;
+  animation-name: pulse;
+  animation-duration: 1s;
+  animation-fill-mode: forwards;
+  animation-iteration-count: infinite;
 }
 .header-clock-pressure .header-clock-mouth {
   width: 6px;
@@ -399,24 +428,6 @@ html, body, .game { height: 100%; }
   animation-duration: .98s;
   animation-fill-mode: forwards;
   animation-iteration-count: infinite;
-}
-.header-text {
-  font-size: 26px;
-  margin-left: .5rem;
-}
-.text-small {
-  font-size: 10px;
-}
-.header-time {
-  width: 40px;
-}
-.header-divider {
-  width: 3px;
-  height: 10px;
-  background: #ccc;
-  display: block;
-  margin-left: 1.5rem;
-  margin-right: 1.5rem;
 }
 .button {
   font-size: 14px;
