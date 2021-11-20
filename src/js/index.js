@@ -273,28 +273,33 @@ const buggerGame = function(host) {
   const resetAllSettings = function() {
     clearTimer();
     level = 1;
-    currentTime = 90;
-    availableFlies = 30;
     flyCount = 0;
+    availableFlies = 40;
+    currentTime = 90;
     flySpeed = 40;
   }
 
   const setNewLevelSettings = function() {
     flyCount = 0;
-    if (level === 2) {
-      currentTime = 90;
-      availableFlies = 50;
-      flySpeed = 30;
-    }
-    if (level === 3) {
-      currentTime = 90;
-      availableFlies = 60;
-      flySpeed = 20;
-    }
-    if (level === 4) {
-      currentTime = 90;
-      availableFlies = 70;
-      flySpeed = 15;
+    switch(level) {
+      case 2: {
+        currentTime = 90;
+        availableFlies = 50;
+        flySpeed = 30;
+        break;
+      }
+      case 3: {
+        currentTime = 90;
+        availableFlies = 60;
+        flySpeed = 20;
+        break;
+      }
+      default: {
+        currentTime = 90;
+        availableFlies = 70;
+        flySpeed = 15;
+        break;
+      }
     }
   }
 
