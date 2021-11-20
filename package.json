@@ -1,8 +1,7 @@
 {
-  "name": "bugger",
-  "private": true,
-  "author": "Matthew Hartman <matthewhartmanau@gmail.com>",
+  "name": "playbuggergame",
   "version": "1.0.0",
+  "description": "Try to swat as many bugs as you can before the timer runs out. #GitHubGameOff",
   "browserslist": [
     ">1%",
     "last 4 versions",
@@ -29,5 +28,15 @@
     "start": "NODE_ENV=development parcel src/index.html --open --out-dir ./tmp",
     "build": "NODE_ENV=production npm run clean && mkdir dist && rollup -c && node generate-pwa.js && cp -r img dist",
     "clean": "rm -rf dist && rm -rf tmp"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/matthewhartman/playbuggergame.git"
+  },
+  "keywords": ["Bugger", "Game", "GitHubGameOff"],
+  "author": "Matthew Hartman <matthewhartmanau@gmail.com>",
+  "bugs": {
+    "url": "https://github.com/matthewhartman/playbuggergame/issues"
+  },
+  "homepage": "https://github.com/matthewhartman/playbuggergame#readme"
 }
