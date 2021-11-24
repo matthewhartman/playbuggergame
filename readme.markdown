@@ -2,6 +2,13 @@
 
 Try to swat as many bugs as you can before the timer runs out. #GitHubGameOff
 
+Heavily inspired by Gnatt Attack from Mario Paint.
+
+## Play
+
+* Online - https://playbuggergame.web.app
+* Google Play - https://play.google.com/store/apps/details?id=app.web.playbuggergame.twa
+
 ## Sounds and Music
 
 * Slap - https://audiojungle.net/item/face-slap/29940978
