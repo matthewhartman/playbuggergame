@@ -204,15 +204,17 @@ const buggerGame = function(host) {
     const slapEl = host.querySelector('.slap-sound');
     if (slapEl !== null) {
       slapEl.currentTime = 0;
+      slapEl.load();
       slapEl.play();
     }
   }
 
   const playSplatSound = function() {
-    const slapEl = host.querySelector('.splat-sound');
-    if (slapEl !== null) {
-      slapEl.currentTime = 0;
-      slapEl.play();
+    const splatEl = host.querySelector('.splat-sound');
+    if (splatEl !== null) {
+      splatEl.currentTime = 0;
+      splatEl.load();
+      splatEl.play();
     }
   }
 
