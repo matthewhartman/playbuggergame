@@ -4,10 +4,12 @@ Try to swat as many bugs as you can before the timer runs out. #GitHubGameOff
 
 Heavily inspired by Gnatt Attack from Mario Paint.
 
+
 ## Play
 
 * Online - https://playbuggergame.web.app
 * Google Play - https://play.google.com/store/apps/details?id=app.web.playbuggergame.twa
+
 
 ## Sounds and Music
 
@@ -18,3 +20,10 @@ Heavily inspired by Gnatt Attack from Mario Paint.
 * Congrats Song - https://audiojungle.net/item/8-bit-game-win/34104256
 * Clapping - https://audiojungle.net/item/retro-claps/33027298
 * Game Over Song - https://audiojungle.net/item/video-game-over-sound-effects/25576707
+
+
+## Voting
+
+Please leave a review or comment at my submission page.
+
+https://itch.io/jam/game-off-2021/rate/1283949
