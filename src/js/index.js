@@ -8,6 +8,7 @@ import SOUND_LEVEL_UP from '../audio/levelup.mp3';
 import SOUND_SLAP from '../audio/slap.mp3';
 import SOUND_SPLAT from '../audio/splat.mp3';
 import SOUND_CLAP from '../audio/clap.mp3';
+import { createAudioManager } from './audioManager';
 
 const buggerGame = function(host) {
 
@@ -17,15 +18,49 @@ const buggerGame = function(host) {
   let availableFlies = 40;
   let currentTime = 90;
   let flySpeed = 40;
+  let levelMusicSource = null;
+
+  const audio = createAudioManager();
+
+  // Map logical sound names to imported URLs
+  const SFX = {
+    slap: SOUND_SLAP,
+    splat: SOUND_SPLAT,
+    levelup: SOUND_LEVEL_UP,
+    clap: SOUND_CLAP,
+    gameoverMusic: MUSIC_GAMEOVER,
+    congratsMusic: MUSIC_CONGRATULATIONS,
+    levelMusic: MUSIC_LEVEL,
+  };
 
   const bindEvents = function() {
+    let soundsReady = false;
+    let soundsReadyPromise = null;
+
+    function ensureSoundsReady() {
+      if (soundsReady) return Promise.resolve();
+      if (soundsReadyPromise) return soundsReadyPromise;
+      soundsReadyPromise = audio.unlock().then(function() {
+        return audio.loadAll(SFX);
+      })
+      .then(function() {
+        soundsReady = true;
+      })
+      .catch(function(err) {
+        console.warn('Failed to init audio', err);
+      });
+      return soundsReadyPromise;
+    }
+
     host.addEventListener("click", function(event) {
       event.preventDefault();
       const element = event.target;
       if (element.closest("#play") !== null) {
-        renderLevelText().then(function() {
-          const levelUpSoundEl = host.querySelector('.levelup-sound');
-          playSound(levelUpSoundEl);
+        ensureSoundsReady().then(function() {
+          return renderLevelText();
+        })
+        .then(function() {
+          audio.play('levelup');
         });
       }
       if (element.closest(".game-stage") !== null) {
@@ -50,9 +85,9 @@ const buggerGame = function(host) {
       if (element.closest(".level-text-1") !== null) {
         const parentEl = element.closest(".level-text");
         if (parentEl.classList.contains("stage-right")) {
+          // start the game music after level text disappears
           renderStage().then(function() {
-            const musicEl = host.querySelector('.music');
-            playSound(musicEl);
+            levelMusicSource = audio.play('levelMusic', { loop: true, volume: 0.6 });
             startTimer();
           });
         }
@@ -65,8 +100,8 @@ const buggerGame = function(host) {
             renderLevelOutcome();
           } else {
             renderGameOverText().then(function() {
-              const gameOverMusicEl = host.querySelector('.gameover-music');
-              playSound(gameOverMusicEl);
+              stopLevelMusic();
+              audio.play('gameoverMusic', { volume: 0.9 });
               resetAllSettings();
             });
           }
@@ -75,12 +110,18 @@ const buggerGame = function(host) {
       // callback after congratulations animation is done
       if (element.classList.contains("congratulations-container")) {
         renderLevelText().then(function() {
-          const levelUpSoundEl = host.querySelector('.levelup-sound');
-          playSound(levelUpSoundEl);
+          audio.play('levelup');
         });
       }
     });
   }
+
+  const stopLevelMusic = function() {
+    if (levelMusicSource) {
+      try { levelMusicSource.stop(); } catch (e) {}
+      levelMusicSource = null;
+    }
+  };
 
   const init = function() {
     host.innerHTML = '';
@@ -175,10 +216,7 @@ const buggerGame = function(host) {
 
   const assertSwat = function(x, y) {
     const allAliveFlies = host.querySelectorAll('[data-alive="true"]');
-    const slapSoundEl = host.querySelector('.slap-sound');
-    const splatSoundEl = host.querySelector('.splat-sound');
-
-    playSound(slapSoundEl);
+    audio.play('slap');
 
     allAliveFlies.forEach(function(fly) {
       const rect = fly.getBoundingClientRect();
@@ -189,7 +227,7 @@ const buggerGame = function(host) {
         if (fly.dataset.alive === 'true') {
           --availableFlies;
           renderAvailableFliesCount();
-          playSound(splatSoundEl);
+          audio.play('splat');
 
           fly.style.setProperty('--x-hit', `${centerX}px`);
           fly.style.setProperty('--y-hit', `${centerY}px`);
@@ -198,20 +236,6 @@ const buggerGame = function(host) {
         }
       }
     });
-  };
-
-
-  const playSound = function(soundEl) {
-    if (!soundEl) return;
-
-    try {
-      if (!soundEl.paused) {
-        soundEl.currentTime = 0;
-      }
-      soundEl.play();
-    } catch (e) {
-      console.warn('Audio play error:', e);
-    }
   };
 
   const startTimer = function() {
@@ -258,10 +282,11 @@ const buggerGame = function(host) {
       clearTimer();
       setNewLevelSettings();
       renderCongratulations().then(function() {
-        const clapSoundEl = host.querySelector('.congratulations-clap-sound');
-        playSound(clapSoundEl);
-        const congratulationsMusicEl = host.querySelector('.congratulations-music');
-        playSound(congratulationsMusicEl);
+        stopLevelMusic();
+        audio.play('clap');
+        audio.play('congratsMusic', {
+          volume: 0.9,
+        });
       });
     }
   }
@@ -277,8 +302,8 @@ const buggerGame = function(host) {
     clearTimer();
     level = 1;
     flyCount = 0;
-    availableFlies = 40;
     currentTime = 90;
+    availableFlies = 40;
     flySpeed = 40;
   }
 
@@ -305,8 +330,8 @@ const buggerGame = function(host) {
       }
       default: {
         currentTime = 90;
-        availableFlies = 80;
-        flySpeed = 10;
+        availableFlies = 40;
+        flySpeed = 40;
         break;
       }
     }
@@ -348,9 +373,6 @@ const buggerGame = function(host) {
           &nbsp;&nbsp;
           ${renderLevelNumber()}
         </div>
-        <audio class="levelup-sound">
-          <source src="${SOUND_LEVEL_UP}" type="audio/mpeg">
-        </audio>
         `;
       }
       resolve();
@@ -384,15 +406,6 @@ const buggerGame = function(host) {
           </div>
           <div class="game-stage">
           </div>
-        <audio class="music" loop>
-          <source src="${MUSIC_LEVEL}" type="audio/mpeg">
-        </audio>
-        <audio class="slap-sound">
-          <source src="${SOUND_SLAP}" type="audio/mpeg">
-        </audio>
-        <audio class="splat-sound">
-          <source src="${SOUND_SPLAT}" type="audio/mpeg">
-        </audio>
         `;
       }
       resolve();
@@ -421,9 +434,6 @@ const buggerGame = function(host) {
             Play Again
           </button>
         </div>
-        <audio class="gameover-music">
-          <source src="${MUSIC_GAMEOVER}" type="audio/mpeg">
-        </audio>
         `;
       }
       resolve();
@@ -463,12 +473,6 @@ const buggerGame = function(host) {
             </div>
           </div>
         </div>
-        <audio class="congratulations-clap-sound">
-          <source src="${SOUND_CLAP}" type="audio/mpeg">
-        </audio>
-        <audio class="congratulations-music">
-          <source src="${MUSIC_CONGRATULATIONS}" type="audio/mpeg">
-        </audio>
         `;
       }
       resolve();
