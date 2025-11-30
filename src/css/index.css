@@ -1,4 +1,27 @@
 /* Animations */
+@keyframes fly-motion {
+  0%   { transform: translate3d(var(--x0),  var(--y0),  0); }
+  10%  { transform: translate3d(var(--x1),  var(--y1),  0); }
+  20%  { transform: translate3d(var(--x2),  var(--y2),  0); }
+  30%  { transform: translate3d(var(--x3),  var(--y3),  0); }
+  40%  { transform: translate3d(var(--x4),  var(--y4),  0); }
+  50%  { transform: translate3d(var(--x5),  var(--y5),  0); }
+  60%  { transform: translate3d(var(--x6),  var(--y6),  0); }
+  70%  { transform: translate3d(var(--x7),  var(--y7),  0); }
+  80%  { transform: translate3d(var(--x8),  var(--y8),  0); }
+  90%  { transform: translate3d(var(--x9),  var(--y9),  0); }
+  100% { transform: translate3d(var(--x10), var(--y10), 0); }
+}
+@keyframes fly-death {
+  0% {
+    opacity: 1;
+    transform: translate3d(var(--x-hit), var(--y-hit), 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--x-hit), calc(var(--y-hit) + 400px), 0);
+  }
+}
 @keyframes dropfromtop {
   0% { transform: translate(0, -1000px); }
   25% { transform: translate(0, 100px); }
@@ -496,3 +519,17 @@ html, body, .game { height: 100%; }
   left: 0;
   z-index: 2;
 }
+.fly {
+  animation-name: fly-motion;
+  animation-fill-mode: forwards;
+  animation-iteration-count: infinite;
+  animation-timing-function: cubic-bezier(0.1, -0.1, 0.1, 0);
+}
+
+.fly--dead {
+  animation-name: fly-death;
+  animation-duration: 0.5s !important; /* override inline style */
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+}
+

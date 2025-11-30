@@ -23,7 +23,10 @@ const buggerGame = function(host) {
       event.preventDefault();
       const element = event.target;
       if (element.closest("#play") !== null) {
-        renderLevelText();
+        renderLevelText().then(function() {
+          const levelUpSoundEl = host.querySelector('.levelup-sound');
+          playSound(levelUpSoundEl);
+        });
       }
       if (element.closest(".game-stage") !== null) {
         assertSwat(event.clientX, event.clientY);
@@ -48,6 +51,8 @@ const buggerGame = function(host) {
         const parentEl = element.closest(".level-text");
         if (parentEl.classList.contains("stage-right")) {
           renderStage().then(function() {
+            const musicEl = host.querySelector('.music');
+            playSound(musicEl);
             startTimer();
           });
         }
@@ -60,6 +65,8 @@ const buggerGame = function(host) {
             renderLevelOutcome();
           } else {
             renderGameOverText().then(function() {
+              const gameOverMusicEl = host.querySelector('.gameover-music');
+              playSound(gameOverMusicEl);
               resetAllSettings();
             });
           }
@@ -67,7 +74,10 @@ const buggerGame = function(host) {
       }
       // callback after congratulations animation is done
       if (element.classList.contains("congratulations-container")) {
-        renderLevelText();
+        renderLevelText().then(function() {
+          const levelUpSoundEl = host.querySelector('.levelup-sound');
+          playSound(levelUpSoundEl);
+        });
       }
     });
   }
@@ -124,36 +134,37 @@ const buggerGame = function(host) {
   const generateFly = function() {
     ++flyCount;
     const gameStage = host.querySelector('.game-stage');
+    if (!gameStage) return;
+
     const path = createPath(gameStage);
-    const fly = `
-    <span
-      data-index="${flyCount}"
-      class="fly"
-      data-alive="true"
-    >
-      ${FLY}
-      <style>
-        @keyframes fly${flyCount} {
-          ${path.map(function(path, index) {
-            return `
-              ${index === 0 ? `${index}% { transform: translate(${path.x}px, ${path.y}px); }` : `${index}0% { transform: translate(${path.x}px, ${path.y}px); }`}
-            `;
-          }).join('')}
-        }
-        [data-index="${flyCount}"] {
-          animation-name: fly${flyCount};
-          animation-duration: ${flySpeed}s;
-          animation-fill-mode: forwards;
-          animation-iteration-count: infinite;
-          animation-timing-function: cubic-bezier(0.1, -0.1, 0.1, 0);
-        }
-      </style>
-    </span>
-    `;
-    if (gameStage !== null) {
-      gameStage.insertAdjacentHTML('afterbegin', fly);
+
+    const flyEl = document.createElement('span');
+    flyEl.dataset.index = String(flyCount);
+    flyEl.dataset.alive = 'true';
+    flyEl.className = 'fly';
+
+    // SVG/html for the fly
+    flyEl.innerHTML = FLY;
+
+    // Set CSS variables for the path points
+    path.forEach((point, i) => {
+      flyEl.style.setProperty(`--x${i}`, `${point.x}px`);
+      flyEl.style.setProperty(`--y${i}`, `${point.y}px`);
+    });
+
+    // Safety for end point in case path length changes
+    if (path.length > 0) {
+      const last = path[path.length - 1];
+      flyEl.style.setProperty(`--x10`, `${last.x}px`);
+      flyEl.style.setProperty(`--y10`, `${last.y}px`);
     }
-  }
+
+    // Per-fly animation duration only (no new @keyframes)
+    flyEl.style.animationDuration = `${flySpeed}s`;
+
+    gameStage.insertAdjacentElement('afterbegin', flyEl);
+  };
+
 
   const renderAvailableFliesCount = function() {
     const flyCountEl = host.querySelector('.fly-count');
@@ -164,59 +175,44 @@ const buggerGame = function(host) {
 
   const assertSwat = function(x, y) {
     const allAliveFlies = host.querySelectorAll('[data-alive="true"]');
-    playSlapSound();
+    const slapSoundEl = host.querySelector('.slap-sound');
+    const splatSoundEl = host.querySelector('.splat-sound');
+
+    playSound(slapSoundEl);
+
     allAliveFlies.forEach(function(fly) {
-      if (Math.abs(fly.getBoundingClientRect().x - x) < 40 && Math.abs(fly.getBoundingClientRect().y - y) < 40) {
+      const rect = fly.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+
+      if (Math.abs(centerX - x) < 40 && Math.abs(centerY - y) < 40) {
         if (fly.dataset.alive === 'true') {
-          --availableFlies
+          --availableFlies;
           renderAvailableFliesCount();
-          playSplatSound();
-          fly.style = `transform: translate(${fly.getBoundingClientRect().x}px, ${fly.getBoundingClientRect().y}px)`;
-          fly.innerHTML = '';
-          fly.innerHTML = `
-            ${FLY}
-            <style>
-              @keyframes fly${fly.dataset.index} {
-                0% {
-                  opacity: 1;
-                  transform: translate(${fly.getBoundingClientRect().x}px, ${fly.getBoundingClientRect().y}px)
-                }
-                100% {
-                  opacity: 0;
-                  transform: translate(${fly.getBoundingClientRect().x}px, ${fly.getBoundingClientRect().y + 400}px)
-                }
-              }
-              [data-index="${fly.dataset.index}"] {
-                animation-name: fly${fly.dataset.index};
-                animation-duration: .5s;
-                animation-fill-mode: forwards;
-                animation-timing-function: cubic-bezier(0.1, -0.1, 0.1, 0);
-              }
-            </style>
-          `
+          playSound(splatSoundEl);
+
+          fly.style.setProperty('--x-hit', `${centerX}px`);
+          fly.style.setProperty('--y-hit', `${centerY}px`);
           fly.dataset.alive = 'false';
+          fly.classList.add('fly--dead');
         }
       }
-    })
-  }
+    });
+  };
 
-  const playSlapSound = function() {
-    const slapEl = host.querySelector('.slap-sound');
-    if (slapEl !== null) {
-      slapEl.currentTime = 0;
-      slapEl.load();
-      slapEl.play();
-    }
-  }
 
-  const playSplatSound = function() {
-    const splatEl = host.querySelector('.splat-sound');
-    if (splatEl !== null) {
-      splatEl.currentTime = 0;
-      splatEl.load();
-      splatEl.play();
+  const playSound = function(soundEl) {
+    if (!soundEl) return;
+
+    try {
+      if (!soundEl.paused) {
+        soundEl.currentTime = 0;
+      }
+      soundEl.play();
+    } catch (e) {
+      console.warn('Audio play error:', e);
     }
-  }
+  };
 
   const startTimer = function() {
     let increment = 100 / currentTime;
@@ -261,7 +257,12 @@ const buggerGame = function(host) {
       ++level;
       clearTimer();
       setNewLevelSettings();
-      renderCongratulations();
+      renderCongratulations().then(function() {
+        const clapSoundEl = host.querySelector('.congratulations-clap-sound');
+        playSound(clapSoundEl);
+        const congratulationsMusicEl = host.querySelector('.congratulations-music');
+        playSound(congratulationsMusicEl);
+      });
     }
   }
 
@@ -296,10 +297,16 @@ const buggerGame = function(host) {
         flySpeed = 20;
         break;
       }
-      default: {
+      case 4: {
         currentTime = 90;
         availableFlies = 70;
         flySpeed = 15;
+        break;
+      }
+      default: {
+        currentTime = 90;
+        availableFlies = 80;
+        flySpeed = 10;
         break;
       }
     }
@@ -341,7 +348,7 @@ const buggerGame = function(host) {
           &nbsp;&nbsp;
           ${renderLevelNumber()}
         </div>
-        <audio class="levelup-sound" autoplay>
+        <audio class="levelup-sound">
           <source src="${SOUND_LEVEL_UP}" type="audio/mpeg">
         </audio>
         `;
@@ -377,7 +384,7 @@ const buggerGame = function(host) {
           </div>
           <div class="game-stage">
           </div>
-        <audio class="music" autoplay loop>
+        <audio class="music" loop>
           <source src="${MUSIC_LEVEL}" type="audio/mpeg">
         </audio>
         <audio class="slap-sound">
@@ -414,7 +421,7 @@ const buggerGame = function(host) {
             Play Again
           </button>
         </div>
-        <audio class="gameover-music" autoplay>
+        <audio class="gameover-music">
           <source src="${MUSIC_GAMEOVER}" type="audio/mpeg">
         </audio>
         `;
@@ -456,10 +463,10 @@ const buggerGame = function(host) {
             </div>
           </div>
         </div>
-        <audio class="congratulations-clap" autoplay>
+        <audio class="congratulations-clap-sound">
           <source src="${SOUND_CLAP}" type="audio/mpeg">
         </audio>
-        <audio class="congratulations-music" autoplay>
+        <audio class="congratulations-music">
           <source src="${MUSIC_CONGRATULATIONS}" type="audio/mpeg">
         </audio>
         `;
